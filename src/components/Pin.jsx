@@ -2,38 +2,53 @@ import React,{useState} from 'react'
 import {Link,Navigate,useNavigate} from 'react-router-dom'
 import {v4 as uuidv4} from 'uuid'
 import {MdDownloadForOffline} from 'react-icons/md'
-import {AiTwoToneDelete} from 'react-icons/ai'
+import { AiTwotoneDelete } from 'react-icons/ai';
 import {BsFillArrowUpRightCircleFill} from 'react-icons/bs'
 import {client, urlFor } from '../client'
 import { fetchUser } from '../utils/fetchUser'
 
-const Pin = ({pin:{postedBy,image,_id,destination,save}}) => {
+const Pin = ({pin}) => {
+
+  const {postedby,image,_id,destination,save}= pin
+  console.log(pin)
+  
   const [postHovered, setPostHovered] = useState(false)
-  const [savingPost, setSavingPost] = useState(false)
   const navigate = useNavigate()
   const user = fetchUser()
-  
-  const {sub} = user
+  const {sub:subs} = user
+
+
+
   // !! is used to make return a boolean value
-  const alreadySaved = !!(save?.filter((item)=>item.postedBy._id === sub))?.length
-  const savePin = (id)=>
-  {
-    if(!alreadySaved)
-    {
-      setSavingPost(true)
-      client.patch(id).setIfMissing({save:[]}).insert('after','save[-1]',[{
-        _key:uuidv4(),
-        userId:sub,
-        postedBy:{
-          _type:'postedBy',
-          _ref:sub
-        }
-      }]).commit().then(()=>{
-        window.location.reload();
-        setSavingPost(false)
-      })
+  let alreadySaved = pin?.save?.filter((item) => item?.postedby?._id === subs);
+  alreadySaved = alreadySaved?.length > 0 ? alreadySaved : [];
+  const savePin = (id) => {
+    
+    if (alreadySaved?.length === 0) {
+
+        client
+        .patch(id)
+        .setIfMissing({ save: [] })
+        .insert('after', 'save[-1]', [{
+          _key: uuidv4(),
+          userId:user?.sub,
+          postedby: {
+            _type: 'postedby',
+            _ref:subs
+          },
+        }])
+        .commit()
+        .then(() => {
+          window.location.reload();
+         
+        });
     }
+  };
+
+  const deletePin = (id)=>{
+    client.delete(id).then(()=>{window.location.reload()})
   }
+
   return (
     <div className='m-2'>
 
@@ -72,10 +87,42 @@ const Pin = ({pin:{postedBy,image,_id,destination,save}}) => {
                       </button>
                     )}
                   </div>
+                  <div className='flex justify-between items-center gap-2 w-full'>
+                    {destination && (
+                      <a href={destination}
+                      target='_blank'
+                      rel='noreferrer'
+                      className='bg-white flex items-center gap-2 text-black font-bold p-2 pl-4 pr-5 rounded-full opacity-70 hover:opacity-100 hover:shadow-md'
+                      >
+                        <BsFillArrowUpRightCircleFill/>
+                        {destination.length > 20 ? destination.slice(8,20): destination.slice(8)}
+
+                      </a>
+                    )}
+                    {postedby?._id  === subs && (
+                      
+                      <button type='button'
+                      className='bg-white p-2 opacity-70 hover:opacity-100 text-dark font-bold  text-base rounded-3xl hover:shadow-md outline-none'
+                      onClick={(e)=>{e.stopPropagation();
+                      deletePin(_id)
+                      }}
+                      >
+                        <AiTwotoneDelete/>
+                      </button>
+                    )}
+                  </div>
               </div>
             )}
         </div>
-      
+      <Link to={`user-profile/${postedby?._id}`}
+      className='flex gap-2 mt-2 items-center '>
+        <img src={postedby?.image} alt="userProfile" 
+        className='w-8 h-8 rounded-full object-cover'
+        />
+        <p className='font-semibold capitalize'>
+          {postedby?.username}
+        </p>
+      </Link>
         
     </div>
   )
