@@ -120,3 +120,116 @@ export const categories = [
       "https://i.pinimg.com/236x/2e/63/c8/2e63c82dfd49aca8dccf9de3f57e8588.jpg",
   },
 ];
+
+export const pinDetailQuery = (pinId) => {
+  const query = `*[_type == "pin" && _id == '${pinId}']{
+    image{
+      asset->{
+        url
+      }
+    },
+    _id,
+    title, 
+    about,
+    category,
+    destination,
+    postedby->{
+      _id,
+      username,
+      image
+    },
+   save[]{
+      postedby->{
+        _id,
+        username,
+        image
+      },
+    },
+    comments[]{
+      comment,
+      _key,
+      postedby->{
+        _id,
+        username,
+        image
+      },
+    }
+  }`;
+  return query;
+};
+
+export const pinDetailMorePinQuery = (pin) => {
+  const query = `*[_type == "pin" && category == '${pin?.category}' && _id != '${pin?._id}' ]{
+    image{
+      asset->{
+        url
+      }
+    },
+    _id,
+    destination,
+    postedby->{
+      _id,
+      username,
+      image
+    },
+    save[]{
+      _key,
+      postedby->{
+        _id,
+        username,
+        image
+      },
+    },
+  }`;
+  return query;
+};
+
+export const userCreatedPinsQuery = (userId) => {
+  const query = `*[ _type == 'pin' && userid == '${userId}'] | order(_createdAt desc){
+    image{
+      asset->{
+        url
+      }
+    },
+    _id,
+    destination,
+    postedby->{
+      _id,
+      username,
+      image
+    },
+    save[]{
+      postedby->{
+        _id,
+        username,
+        image
+      },
+    },
+  }`;
+  return query;
+};
+
+export const userSavedPinsQuery = (userId) => {
+  const query = `*[_type == 'pin' && '${userId}' in save[].userid ] | order(_createdAt desc) {
+    image{
+      asset->{
+        url
+      }
+    },
+    _id,
+    destination,
+    postedby->{
+      _id,
+      username,
+      image
+    },
+    save[]{
+      postedby->{
+        _id,
+        username,
+        image
+      },
+    },
+  }`;
+  return query;
+};

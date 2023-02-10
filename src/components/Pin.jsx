@@ -9,38 +9,32 @@ import { fetchUser } from '../utils/fetchUser'
 
 const Pin = ({pin}) => {
 
-  const {postedby,image,_id,destination,save}= pin
-  console.log(pin)
-  
+  const {postedby,image,_id,destination}= pin
   const [postHovered, setPostHovered] = useState(false)
   const navigate = useNavigate()
   const user = fetchUser()
-  const {sub:subs} = user
 
-
+  console.log(pin)
 
   // !! is used to make return a boolean value
-  let alreadySaved = pin?.save?.filter((item) => item?.postedby?._id === subs);
+  let alreadySaved = pin?.save?.filter((item) => item?.postedby?._id === user?.sub);
   alreadySaved = alreadySaved?.length > 0 ? alreadySaved : [];
   const savePin = (id) => {
-    
     if (alreadySaved?.length === 0) {
-
         client
         .patch(id)
         .setIfMissing({ save: [] })
         .insert('after', 'save[-1]', [{
           _key: uuidv4(),
-          userId:user?.sub,
+          userid:user?.sub,
           postedby: {
             _type: 'postedby',
-            _ref:subs
+            _ref:user?.sub
           },
         }])
         .commit()
         .then(() => {
           window.location.reload();
-         
         });
     }
   };
@@ -64,28 +58,28 @@ const Pin = ({pin}) => {
                   <div className='flex items-center justify-between'>
                     <div className='flex gap-2'>
                       <a href={`${image?.asset?.url}?dl=`} download 
-                      onClick={(e)=>e.stopPropagation()}
+                      onClick={(e)=>{e.stopPropagation()}}
                       className='bg-white w-9 h-9 rounded-full flex items-center justify-center text-dark text-xl opacity-75  hover:opacity-100 hover:shadow-md outline-none'
                       >
                         <MdDownloadForOffline/>
                       </a>
                     </div>
-                    {alreadySaved ?(
-                      <button type='button'
-                      className='bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none'
-                      >
-                      {save?.length}  Saved
-                      </button>
-                    ):(
-                      <button type='button'
-                      onClick={(e)=>{e.stopPropagation();
-                      savePin(_id);
-                    }}
-                      className='bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none'
-                      >
-                        Save
-                      </button>
-                    )}
+                {alreadySaved?.length !== 0 ? (
+                <button type="button" className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none">
+                  {pin?.save?.length}  Saved
+                </button>
+              ) : (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    savePin(pin?._id);
+                  }}
+                  type="button"
+                  className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none"
+                >
+                  {pin?.save?.length}   Save
+                </button>
+              )}
                   </div>
                   <div className='flex justify-between items-center gap-2 w-full'>
                     {destination && (
@@ -99,7 +93,7 @@ const Pin = ({pin}) => {
 
                       </a>
                     )}
-                    {postedby?._id  === subs && (
+                    {postedby?._id  === user?.sub && (
                       
                       <button type='button'
                       className='bg-white p-2 opacity-70 hover:opacity-100 text-dark font-bold  text-base rounded-3xl hover:shadow-md outline-none'
