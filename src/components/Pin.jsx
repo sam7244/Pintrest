@@ -51,8 +51,7 @@ const Pin = ({ pin }) => {
       <div
         onMouseEnter={() => setPostHovered(true)}
         onMouseLeave={() => setPostHovered(false)}
-        onClick={() => navigate(`/pin-detail/${_id}`)}
-        className="relative cursor-zoom-in w-auto hover:shadow-lg rounded-lg overflow-hidden transition-all duration-500 ease-in-out"
+        className="relative w-auto hover:shadow-lg cursor-zoom-in transition-all duration-500 overflow-hidden ease-in-out"
       >
         <img
           src={urlFor(image).width(250).url()}
@@ -60,19 +59,14 @@ const Pin = ({ pin }) => {
           className="rounded-lg w-full"
         />
         {postHovered && (
-          <div
-            className="absolute top-0 w-full h-full flex flex-col justify-between p-1 pr-2 pt-2 pb-2 z-50"
-            // style={{ height: "100%" }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex gap-2">
+          <div className="absolute w-full h-full top-0  flex flex-col justify-between">
+            <div className="flex items-center mt-2 mx-2 justify-between">
+              <div className="flex gap-2 p-1">
                 <a
                   href={`${image?.asset?.url}?dl=`}
                   download
-                  onClick={(e) => {
-                    e.stopPropagation();
-                  }}
-                  className="bg-white w-9 h-9 rounded-full flex items-center justify-center text-dark text-xl opacity-75  hover:opacity-100 hover:shadow-md outline-none"
+                  onClick={(e) => e.stopPropagation()}
+                  className="bg-white w-8 h-8 rounded-full flex items-center justify-center  hover:opactiy-100 opacity-70"
                 >
                   <MdDownloadForOffline />
                 </a>
@@ -80,24 +74,20 @@ const Pin = ({ pin }) => {
               {alreadySaved?.length !== 0 ? (
                 <button
                   type="button"
-                  className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none"
+                  className="bg-red-500 px-4 font-bold text-white py-1 rounded-3xl mr-1 opacity-70 hover:opacity-100"
                 >
                   {pin?.save?.length} Saved
                 </button>
               ) : (
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    savePin(pin?._id);
-                  }}
                   type="button"
-                  className="bg-red-500 opacity-70 hover:opacity-100 text-white font-bold px-5 py-1 text-base rounded-3xl hover:shadow-md outline-none"
+                  className="bg-red-500 px-4 font-bold text-white py-1 rounded-3xl mr-1 opacity-70 hover:opacity-100"
                 >
-                  {pin?.save?.length} Save
+                  Save
                 </button>
               )}
             </div>
-            <div className="flex justify-between items-center gap-2 w-full">
+            <div className="flex items-center justify-between my-2  w-full gap-5">
               {destination && (
                 <a
                   href={destination}
@@ -107,37 +97,14 @@ const Pin = ({ pin }) => {
                 >
                   <BsFillArrowUpRightCircleFill />
                   {destination.length > 20
-                    ? destination.slice(8, 20)
-                    : destination.slice(8)}
+                    ? destination.slice(0, 12)
+                    : destination}
                 </a>
-              )}
-              {postedby?._id === user?.sub && (
-                <button
-                  type="button"
-                  className="bg-white p-2 opacity-70 hover:opacity-100 text-dark font-bold  text-base rounded-3xl hover:shadow-md outline-none"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deletePin(_id);
-                  }}
-                >
-                  <AiTwotoneDelete />
-                </button>
               )}
             </div>
           </div>
         )}
       </div>
-      <Link
-        to={`user-profile/${postedby?._id}`}
-        className="flex gap-2 mt-2 items-center "
-      >
-        <img
-          src={postedby?.image}
-          alt="userProfile"
-          className="w-8 h-8 rounded-full object-cover"
-        />
-        <p className="font-semibold capitalize">{postedby?.username}</p>
-      </Link>
     </div>
   );
 };
