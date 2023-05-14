@@ -64,7 +64,7 @@ const PinDetails = ({ user }) => {
   return (
     <>
       <div
-        className="flex xl:flex-row flex-col m-aut
+        className="flex xl:flex-row flex-col m-auto
      bg-white"
         style={{ maxWidth: "1500px", borderRadius: "32px" }}
       >
